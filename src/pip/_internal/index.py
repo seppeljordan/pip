@@ -634,7 +634,11 @@ class PackageFinder(object):
                 self._log_skipped_link(
                     link, 'unsupported archive format: %s' % ext)
                 return
-            if "binary" not in search.formats and ext == wheel_ext:
+            if (("binary" not in search.formats and
+                 ext == wheel_ext) and
+                (urllib_parse.urlparse(link.url).scheme != 'file' or
+                 "binary_local" not in search.formats)
+            ):
                 self._log_skipped_link(
                     link, 'No binaries permitted for %s' % search.supplied)
                 return
@@ -1084,7 +1088,7 @@ def fmt_ctl_handle_mutual_exclude(value, target, other):
 
 
 def fmt_ctl_formats(fmt_ctl, canonical_name):
-    result = {"binary", "source"}
+    result = {"binary", "source", "binary_local"}
     if canonical_name in fmt_ctl.only_binary:
         result.discard('source')
     elif canonical_name in fmt_ctl.no_binary:
@@ -1092,6 +1096,9 @@ def fmt_ctl_formats(fmt_ctl, canonical_name):
     elif ':all:' in fmt_ctl.only_binary:
         result.discard('source')
     elif ':all:' in fmt_ctl.no_binary:
+        result.discard('binary')
+        result.discard('binary_local')
+    elif ':allow_local:' in fmt_ctl.only_binary:
         result.discard('binary')
     return frozenset(result)
 
