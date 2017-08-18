@@ -616,6 +616,7 @@ class PackageFinder(object):
 
     def _link_package_versions(self, link, search):
         """Return an InstallationCandidate or None"""
+        link_url_scheme = urllib_parse.urlparse(link.url).scheme
         version = None
         if link.egg_fragment:
             egg_info = link.egg_fragment
@@ -629,13 +630,21 @@ class PackageFinder(object):
                 self._log_skipped_link(
                     link, 'unsupported archive format: %s' % ext)
                 return
-            if (("binary" not in search.formats and
-                 ext == wheel_ext) and
-                (urllib_parse.urlparse(link.url).scheme != 'file' or
-                 "binary_local" not in search.formats)
+            if ('binary' not in search.formats and
+                ext == wheel_ext and
+                link_url_scheme != 'file'
             ):
                 self._log_skipped_link(
                     link, 'No binaries permitted for %s' % search.supplied)
+                return
+            if (link_url_scheme != 'file' and
+                'binary' not in search.formats and
+                'binary_local' not in search.formats
+            ):
+                self._log_skipped_link(
+                    link,
+                    'No local binaries permitted for %s' % search.supplied
+                )
                 return
             if "macosx10" in link.path and ext == '.zip':
                 self._log_skipped_link(link, 'macosx10 one')
@@ -1093,7 +1102,7 @@ def fmt_ctl_formats(fmt_ctl, canonical_name):
     elif ':all:' in fmt_ctl.no_binary:
         result.discard('binary')
         result.discard('binary_local')
-    elif ':allow_local:' in fmt_ctl.only_binary:
+    elif ':allow-local:' in fmt_ctl.no_binary:
         result.discard('binary')
     return frozenset(result)
 
