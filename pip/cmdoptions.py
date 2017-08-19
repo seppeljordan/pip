@@ -351,7 +351,8 @@ def no_binary():
              "disable all binary packages, :none: to empty the set, or one or "
              "more package names with commas between them. Note that some "
              "packages are tricky to compile and may fail to install when "
-             "this option is used on them.")
+             "this option is used on them.  You can supply :allow-local: to "
+             "allow pip to use binaries from your local file system.")
 
 
 def only_binary():
