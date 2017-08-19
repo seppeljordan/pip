@@ -630,22 +630,23 @@ class PackageFinder(object):
                 self._log_skipped_link(
                     link, 'unsupported archive format: %s' % ext)
                 return
-            if ('binary' not in search.formats and
-                ext == wheel_ext and
-                link_url_scheme != 'file'
-            ):
-                self._log_skipped_link(
-                    link, 'No binaries permitted for %s' % search.supplied)
-                return
-            if (link_url_scheme != 'file' and
-                'binary' not in search.formats and
-                'binary_local' not in search.formats
-            ):
-                self._log_skipped_link(
-                    link,
-                    'No local binaries permitted for %s' % search.supplied
-                )
-                return
+            if link_url_scheme == 'file':
+                if ('binary' not in search.formats and
+                    'binary_local' not in search.formats and
+                    ext == wheel_ext
+                ):
+                    self._log_skipped_link(
+                        link,
+                        'No local binaries permitted for %s' % search.supplied
+                    )
+                    return
+            else:
+                if ('binary' not in search.formats and
+                    ext == wheel_ext
+                ):
+                    self._log_skipped_link(
+                        link, 'No binaries permitted for %s' % search.supplied)
+                    return
             if "macosx10" in link.path and ext == '.zip':
                 self._log_skipped_link(link, 'macosx10 one')
                 return
