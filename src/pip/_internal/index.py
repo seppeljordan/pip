@@ -1100,11 +1100,11 @@ def fmt_ctl_formats(fmt_ctl, canonical_name):
         result.discard('binary')
     elif ':all:' in fmt_ctl.only_binary:
         result.discard('source')
+    elif ':allow-local:' in fmt_ctl.no_binary:
+        result.discard('binary')
     elif ':all:' in fmt_ctl.no_binary:
         result.discard('binary')
         result.discard('binary_local')
-    elif ':allow_local:' in fmt_ctl.only_binary:
-        result.discard('binary')
     return frozenset(result)
 
 
